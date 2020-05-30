@@ -13,7 +13,7 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
-        // customer account
+        // customer dummy account
         User::create([
             'name' => 'Frisco Nirwana Putra',
             'email' => 'friscoputra.id@gmail.com',
@@ -22,7 +22,7 @@ class UserSeeder extends Seeder
             'role_id' => 1,
         ]);
 
-        // seller account
+        // seller dummy account
         User::create([
             'name' => 'Nadhila Choirul Hardiana',
             'email' => 'nadhilach@gmail.com',

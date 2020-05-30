@@ -26,18 +26,22 @@ class AuthController extends Controller
         if ($validator->fails()) {
             return $this->sendError($validator->errors(), 'Validasi gagal!', 401);
         } else {
-            if (Auth::attempt($request->all(), true)) {
-                $user = Auth::user();
-                $accessToken = $user->createToken($user->email)->accessToken;
+            $user = User::where('email', $request->email)->first();
+            if ($user) {
+                if (Hash::check($request->password, $user->password)) {
+                    $accessToken = $user->createToken($user->id)->accessToken;
 
-                $data = [
-                    'user' => $user,
-                    'access_token' => $accessToken,
-                ];
+                    $data = [
+                        'user' => $user,
+                        'accessToken' => $accessToken,
+                    ];
 
-                return $this->sendResponse($data, 'Login berhasil!');
+                    return $this->sendResponse($data, 'Login User Berhasil.');
+                } else {
+                    return $this->sendError(null, 'Password User Salah.', 422);
+                }
             } else {
-                return $this->sendError(null, 'Email dan Kata Sandi tidak cocok.', 401);
+                return $this->sendError(null, 'Data User Tidak Ditemukan.', 422);
             }
         }
     }
@@ -79,10 +83,15 @@ class AuthController extends Controller
         }
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
-        Auth::user()->token()->revoke();
+        $request->user()->token()->revoke();
 
         return $this->sendResponse(null, 'Logout berhasil.');
+    }
+
+    public function detail(Request $request)
+    {
+        return $this->sendResponse($request->user(), 'Berhasil mendapatkan data User Login.');
     }
 }
