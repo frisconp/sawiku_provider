@@ -14,6 +14,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get('/check', function () {
+    return response('Server ready!');
+});
+
 Route::group(['prefix' => 'auth'], function () {
     Route::get('/detail', 'API\AuthController@detail')->middleware('auth:api');
     Route::post('/login', 'API\AuthController@login');
