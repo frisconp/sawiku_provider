@@ -13,7 +13,7 @@ class MenuController extends Controller
     {
         $menus = Menu::all();
 
-        return $this->sendResponse($menus, 'Get all menu.');
+        return $this->sendResponse($menus->load('user'), 'Get all menu.');
     }
 
     public function store(Request $request)
@@ -42,13 +42,13 @@ class MenuController extends Controller
         $menu->menu_category_id = $request->menu_category_id;
         $menu->save();
 
-        return $this->sendResponse($menu, 'Menu created!', 201);
+        return $this->sendResponse($menu->load('user'), 'Menu created!', 201);
     }
 
     public function show(Menu $menu)
     {
         if ($menu) {
-            return $this->sendResponse($menu, 'Get detail menu.');
+            return $this->sendResponse($menu->load('user'), 'Get detail menu.');
         } else {
             return $this->sendError(null, 'Menu not found.');
         }
