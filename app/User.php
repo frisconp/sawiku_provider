@@ -43,4 +43,9 @@ class User extends Authenticatable
     {
         return Storage::url($avatar);
     }
+
+    public function menus()
+    {
+        return $this->hasMany('App\Menu');
+    }
 }
