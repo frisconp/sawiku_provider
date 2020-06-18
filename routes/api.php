@@ -38,3 +38,9 @@ Route::group(['prefix' => 'article'], function () {
     Route::get('/{id}', 'API\ArticleController@show');
     Route::post('/store', 'API\ArticleController@store')->middleware('auth:api-admin');
 });
+
+Route::group(['prefix' => 'menu'], function () {
+    Route::get('/', 'API\MenuController@index');
+    Route::get('/{menu}', 'API\MenuController@show');
+    Route::post('/store', 'API\MenuController@store')->middleware('auth:api');
+});
