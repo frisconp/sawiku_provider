@@ -61,4 +61,39 @@ class OrderController extends Controller
             return response()->json($snapTransaction);
         });
     }
+
+    public function notificationHandler()
+    {
+        $notification = new Midtrans\Notification();
+
+        $transaction = $notification->transaction_status;
+        $type = $notification->payment_type;
+        $orderId = $notification->order_id;
+        $fraud = $notification->fraud_status;
+        $order = Order::findOrFail($orderId);
+
+        error_log("Order ID " . $notification->order_id . ": transaction status = " . $transaction . ", fraud status = " . $fraud);
+
+        if ($transaction == 'capture') {
+            if ($type == 'credit_card') {
+                if ($fraud == 'challenge') {
+                    $order->setPending();
+                } else {
+                    $order->setSuccess();
+                }
+            }
+        } else if ($transaction == 'settlement') {
+            $order->setSuccess();
+        } else if ($transaction == 'pending') {
+            $order->setPending();
+        } else if ($transaction == 'deny') {
+            $order->setFailed();
+        } else if ($transaction == 'expire') {
+            $order->setExpired();
+        } else if ($transaction == 'cancel') {
+            $order->setFailed();
+        }
+
+        return;
+    }
 }
