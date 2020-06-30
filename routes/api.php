@@ -44,3 +44,8 @@ Route::group(['prefix' => 'menu'], function () {
     Route::get('/{menu}', 'API\MenuController@show');
     Route::post('/store', 'API\MenuController@store')->middleware('auth:api');
 });
+
+Route::group(['prefix' => 'order'], function () {
+    Route::post('/store', 'API\OrderController@store')->middleware('auth:api');
+    Route::post('/notification/handler', 'API\OrderController@notificationHandler');
+});
