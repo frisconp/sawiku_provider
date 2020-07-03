@@ -35,7 +35,7 @@ class OrderController extends Controller
                 'note' => $this->request->note,
             ]);
 
-            if (count($this->request->order_items) == 0) {
+            if (empty($this->request->order_items)) {
                 return response()->json(['error_message' => 'Array is empty!']);
             }
 
