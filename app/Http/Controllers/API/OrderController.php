@@ -35,6 +35,10 @@ class OrderController extends Controller
                 'note' => $this->request->note,
             ]);
 
+            if (count($this->request->order_items) == 0) {
+                return response()->json(['error_message' => 'Array is empty!']);
+            }
+
             // Save all order detail data
             foreach ($this->request->order_items as $item) {
                 $orderDetail = OrderDetail::create([
