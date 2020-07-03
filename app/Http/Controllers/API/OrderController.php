@@ -36,7 +36,7 @@ class OrderController extends Controller
             ]);
 
             if (empty($this->request->order_items)) {
-                return response()->json(['error_message' => 'Array is empty!']);
+                return response(['error_message' => 'Array is Empty.'], 401);
             }
 
             // Save all order detail data
