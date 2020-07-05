@@ -11,12 +11,8 @@ use Midtrans;
 
 class OrderController extends Controller
 {
-    protected $request;
-
     public function __construct(Request $request)
     {
-        $this->request = $request;
-
         // Midtrans Configurations
         Midtrans\Config::$serverKey = 'SB-Mid-server-6rtC6D8yaJAub4YnQIW-POt5';
         Midtrans\Config::$isProduction = false;
@@ -25,45 +21,47 @@ class OrderController extends Controller
         Midtrans\Config::$clientKey = 'SB-Mid-client-259kqKpKF_PGbWcU';
     }
 
-    public function store()
+    public function store(Request $request)
     {
-        DB::transaction(function () {
-            // Svae order data
-            $order = Order::create([
-                'user_id' => $this->request->user()->id,
-                'payment_total' => $this->request->payment_total,
-                'note' => $this->request->note,
+        DB::beginTransaction();
+
+        // Save order data
+        $order = Order::create([
+            'user_id' => $request->user()->id,
+            'payment_total' => $request->payment_total,
+            'note' => $request->note,
+        ]);
+
+        if (empty($request->order_items) || count($request->order_items) == 0) {
+            DB::rollback();
+            return response()->json(['error_message' => 'Array is empty.'], 400);
+        }
+
+        // Save all order detail data
+        foreach ($request->order_items as $item) {
+            OrderDetail::create([
+                'order_id' => $order->id,
+                'menu_id' => $item['menu_id'],
+                'amount' => $item['amount'],
             ]);
+        }
 
-            if (empty($this->request->order_items)) {
-                return response(['error_message' => 'Array is Empty.'], 401);
-            }
+        $payload = [
+            'transaction_details' => [
+                'order_id' => $order->id,
+                'gross_amount' => $order->payment_total,
+            ],
+        ];
 
-            // Save all order detail data
-            foreach ($this->request->order_items as $item) {
-                $orderDetail = OrderDetail::create([
-                    'order_id' => $order->id,
-                    'menu_id' => $item->menu_id,
-                    'amount' => $item->amount,
-                ]);
-            }
+        $snapTransaction = Midtrans\Snap::createTransaction($payload);
+        $snapToken = $snapTransaction->token;
+        $paymentUrl = $snapTransaction->redirect_url;
 
-            $payload = [
-                'transaction_details' => [
-                    'order_id' => $order->id,
-                    'gross_amount' => $order->payment_total,
-                ],
-            ];
+        $order->payment_token = $snapToken;
+        $order->save();
 
-            $snapTransaction = Midtrans\Snap::createTransaction($payload);
-            $snapToken = $snapTransaction->token;
-            $paymentUrl = $snapTransaction->redirect_url;
-
-            $order->payment_token = $snapToken;
-            $order->save();
-
-            return response()->json($snapTransaction);
-        });
+        DB::commit();
+        return response()->json($snapTransaction);
     }
 
     public function notificationHandler()
