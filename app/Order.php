@@ -33,4 +33,9 @@ class Order extends Model
         $this->status = 'EXPIRED';
         $this->save();
     }
+
+    public function details()
+    {
+        return $this->hasMany('App\OrderDetail');
+    }
 }

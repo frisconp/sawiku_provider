@@ -47,6 +47,7 @@ Route::group(['prefix' => 'menu'], function () {
 
 Route::group(['prefix' => 'order'], function () {
     Route::post('/store', 'API\OrderController@store')->middleware('auth:api');
+    Route::get('/history', 'API\OrderController@getByUser')->middleware('auth:api');
     Route::post('/notification/handler', 'API\OrderController@notificationHandler');
     Route::post('/finish', function () {
         return response()->json(['message' => 'Transaksi selesai.']);

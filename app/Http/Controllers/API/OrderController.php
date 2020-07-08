@@ -98,4 +98,12 @@ class OrderController extends Controller
 
         return;
     }
+
+    public function getByUser(Request $request)
+    {
+        $userId = $request->user()->id;
+        $orders = Order::where('user_id', $userId)->with('details')->get();
+
+        return $this->sendResponse($orders, 'Get orders data success.');
+    }
 }
