@@ -41,7 +41,9 @@ class User extends Authenticatable
 
     public function getAvatarAttribute($avatar)
     {
-        return Storage::url($avatar);
+        if ($avatar != null) {
+            return Storage::url($avatar);
+        }
     }
 
     public function menus()
