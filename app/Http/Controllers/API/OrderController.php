@@ -86,13 +86,17 @@ class OrderController extends Controller
             }
         } else if ($transaction == 'settlement') {
             $order->setSuccess();
-        } else if ($transaction == 'pending') {
+        }
+        else if ($transaction == 'pending') {
             $order->setPending();
-        } else if ($transaction == 'deny') {
+        }
+        else if ($transaction == 'deny') {
             $order->setFailed();
-        } else if ($transaction == 'expire') {
+        }
+        else if ($transaction == 'expire') {
             $order->setExpired();
-        } else if ($transaction == 'cancel') {
+        }
+        else if ($transaction == 'cancel') {
             $order->setFailed();
         }
 
@@ -102,7 +106,7 @@ class OrderController extends Controller
     public function getByUser(Request $request)
     {
         $userId = $request->user()->id;
-        $orders = Order::where('user_id', $userId)->with('details')->get();
+        $orders = Order::where('user_id', $userId)->orderBy('created_at', 'DESC')->with('details')->get();
 
         return $this->sendResponse($orders, 'Get orders data success.');
     }
