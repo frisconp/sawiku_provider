@@ -59,7 +59,7 @@ class OrderController extends Controller
 
         $payload = [
             'transaction_details' => [
-                'order_id' => $order->id + rand(),
+                'order_id' => $order->id,
                 'gross_amount' => $order->payment_total,
             ],
         ];
