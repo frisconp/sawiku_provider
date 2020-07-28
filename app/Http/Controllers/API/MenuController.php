@@ -53,4 +53,20 @@ class MenuController extends Controller
             return $this->sendError(null, 'Menu not found.');
         }
     }
+
+    public function updateStock(Menu $menu, Request $request)
+    {
+        if ($menu) {
+            if ($request->has('stock')) {
+                $menu->stock_amount = $request->stock;
+                $menu->save();
+
+                return $this->sendResponse($menu->load('user'), 'Stock amount updated.');
+            } else {
+                return $this->sendError($menu->load('user'), 'Update stock amount failed.', 400);
+            }
+        } else {
+            return $this->sendError(null, 'Menu tidak ditemukan.');
+        }
+    }
 }

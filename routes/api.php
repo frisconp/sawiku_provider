@@ -43,6 +43,7 @@ Route::group(['prefix' => 'menu'], function () {
     Route::get('/', 'API\MenuController@index');
     Route::get('/{menu}', 'API\MenuController@show');
     Route::post('/store', 'API\MenuController@store')->middleware('auth:api');
+    Route::post('/{menu}/stock/update', 'API\MenuController@updateStock')->middleware('auth:api');
 });
 
 Route::group(['prefix' => 'order'], function () {

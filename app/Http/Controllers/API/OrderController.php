@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Menu;
 use App\Order;
 use App\OrderDetail;
 use Illuminate\Http\Request;
@@ -44,18 +45,27 @@ class OrderController extends Controller
                 'menu_id' => $item['menu_id'],
                 'amount' => $item['amount'],
             ]);
+
+            $menu = Menu::findOrFail($item['menu_id']);
+
+            if ($menu->stock_amount >= $item['amount']) {
+                $menu->stock_amount -= $item['amount'];
+                $menu->save();
+            } else {
+                DB::rollback();
+                return response()->json(['error_message' => 'Order amount of ' . $menu->name . ' greater than stock amount.'], 400);
+            }
         }
 
         $payload = [
             'transaction_details' => [
-                'order_id' => $order->id,
+                'order_id' => $order->id + rand(),
                 'gross_amount' => $order->payment_total,
             ],
         ];
 
         $snapTransaction = Midtrans\Snap::createTransaction($payload);
         $snapToken = $snapTransaction->token;
-        $paymentUrl = $snapTransaction->redirect_url;
 
         $order->payment_token = $snapToken;
         $order->save();
@@ -86,17 +96,13 @@ class OrderController extends Controller
             }
         } else if ($transaction == 'settlement') {
             $order->setSuccess();
-        }
-        else if ($transaction == 'pending') {
+        } else if ($transaction == 'pending') {
             $order->setPending();
-        }
-        else if ($transaction == 'deny') {
+        } else if ($transaction == 'deny') {
             $order->setFailed();
-        }
-        else if ($transaction == 'expire') {
+        } else if ($transaction == 'expire') {
             $order->setExpired();
-        }
-        else if ($transaction == 'cancel') {
+        } else if ($transaction == 'cancel') {
             $order->setFailed();
         }
 

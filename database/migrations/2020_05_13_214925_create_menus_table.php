@@ -18,6 +18,7 @@ class CreateMenusTable extends Migration
             $table->string('name');
             $table->text('photo');
             $table->integer('price');
+            $table->integer('stock_amount')->default(0);
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('menu_category_id')->nullable();
             $table->timestamps();
